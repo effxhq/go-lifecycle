@@ -142,3 +142,30 @@ func Plugin() lifecycle.Plugin {
 	}
 }
 ```
+
+For cases where you might want to track some state, there's a `Plugin` interface that can be implemented.
+
+### Composing plugins
+
+Plugins support composition. This allows components to be bundled and installed together.
+
+```go
+package company_plugin
+
+import (
+	"github.com/effxhq/go-lifecycle"
+)
+
+func DefaultCompanyPlugin() lifecycle.Plugin {
+	return &lifecycle.PluginFuncs{
+		InitializeFunc: func(app *lifecycle.Application) error {
+			app.Initialize(
+				http_plugin.ServerPlugin(),
+				grpc_plugin.ServerPlugin(),
+				grpc_plugin.ClientPlugin("target"),
+			)
+			return nil
+		},
+	}
+}
+```
