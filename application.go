@@ -26,14 +26,7 @@ type Hook func(phase string, err error)
 
 // Application provides a pluggable container that manages a systems lifecycle. It ensures that plugins are initialized,
 // started, and shutdown properly. Should an error occur during initialization or startup, any previous plugin needs to
-// be shutdown to ensure it's cleaned up properly. To do this, the Application manages a simple state-machine. The
-// diagram at the link below shows how an application moves through the various states.
-//
-// https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggTFJcbiAgIFxuICAgKiAtLSBJbml0aWFsaXplIC0tPiAqXG4gICAqIC0tIFN0YXJ0IC0tPiBzdGFydGVkXG4gICAqIC0tIE1pZ3JhdGUgLS0-IG1pZ3JhdGluZ1xuICAgKiAtLSBlcnIgLS0-IHNodXRkb3duXG5cbiAgIG9zLlNJR1RFUk0gLS0-IHNodXRkb3duXG4gICBzdGFydGVkIC0tIGVyciAtLT4gc2h1dGRvd25cbiAgIG1pZ3JhdGluZyAtLSBlcnI_IC0tPiBzaHV0ZG93blxuXG4gICBzaHV0ZG93biAtLT4gdGVybWluYXRlZFxuIiwibWVybWFpZCI6e30sInVwZGF0ZUVkaXRvciI6ZmFsc2V9
-//
-// This should largely be transparent to folks. It's useful for anyone who's developing a plugin and wants to understand
-// these transitions and how it relates to how they should leverage the various phases of their plugin.
-//
+// be shutdown to ensure it's cleaned up properly. To do this, the Application manages a simple state-machine.
 type Application struct {
 	on sync.Once
 

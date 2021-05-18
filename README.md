@@ -38,7 +38,7 @@ Plugins are free to decorate the application with resources. This allows plugins
 app developers
 
 ```go
-app.WithValue(lifecycle.ContextKey("grpc.server"), grpcServer).
+app.WithValue(lifecycle.ContextKey("grpc.server"), grpcServer)
 ```
 
 For retrieval, plugins should provide helper functions for obtaining their resources from the app.
