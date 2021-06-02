@@ -6,5 +6,5 @@ import (
 
 var (
 	ErrInitializeAfterStartup = fmt.Errorf("cannot initialize application after startup")
-	ErrMigrateOrStart         = fmt.Errorf("invalid state: cannot run both Start and Migrate")
+	ErrRunOrStart             = fmt.Errorf("invalid state: cannot Start and Run an application in the same execution context")
 )

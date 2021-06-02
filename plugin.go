@@ -2,7 +2,7 @@ package lifecycle
 
 type Plugin interface {
 	Initialize(app *Application) error
-	Migrate(app *Application) error
+	Run(app *Application) error
 	Start(app *Application) error
 	Shutdown(app *Application) error
 }
@@ -10,7 +10,7 @@ type Plugin interface {
 // PluginFuncs can be used to write partial stateless plugins.
 type PluginFuncs struct {
 	InitializeFunc func(app *Application) error
-	MigrateFunc    func(app *Application) error
+	RunFunc        func(app *Application) error
 	StartFunc      func(app *Application) error
 	ShutdownFunc   func(app *Application) error
 }
@@ -22,11 +22,11 @@ func (p PluginFuncs) Initialize(app *Application) error {
 	return p.InitializeFunc(app)
 }
 
-func (p PluginFuncs) Migrate(app *Application) error {
-	if p.MigrateFunc == nil {
+func (p PluginFuncs) Run(app *Application) error {
+	if p.RunFunc == nil {
 		return nil
 	}
-	return p.MigrateFunc(app)
+	return p.RunFunc(app)
 }
 
 func (p PluginFuncs) Start(app *Application) error {

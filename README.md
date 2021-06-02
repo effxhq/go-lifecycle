@@ -2,7 +2,12 @@
 
 A state-based application lifecycle library for go. `go-lifecycle` helps manage the complexity around the
 initialization, startup, and shutdown of applications. It abstracts away the need to manage any lifecycle hooks and
-provides app devs with a plugin based interface. It also helps ensure that resources are shutdown properly.
+provides app devs with a plugin based interface. It also helps ensure that plugins are properly started and shutdown
+in the event of an error.
+
+**Influences**
+
+* [go-kit](https://github.com/go-kit/kit)
 
 ## Usage
 
@@ -27,15 +32,15 @@ func main() {
 	)
 
 	// do one of these
-	app.Start()
-	app.Migrate()
+	app.Start() // runs application as a long running agent
+	app.Run()   // runs application as a short lived job
 }
 ```
 
 ### Passing resources through app.Context()
 
 Plugins are free to decorate the application with resources. This allows plugins to expose pre-configured resources to
-app developers
+app developers. This is often useful for common boilerplate like setting up an HTTP or gRPC server.
 
 ```go
 app.WithValue(lifecycle.ContextKey("grpc.server"), grpcServer)
@@ -64,16 +69,16 @@ exist in one of the following states:
 1. **Initialization** - The application is idle. Developers are free to install and configure plugins as they need.
    Should the application encounter any errors, all registered plugins are shutdown.
 
-1. **Migrating** - The application runs each plugins `Migrate` step (if it has one). Should the application encounter
-   any errors, all plugins are shutdown. Particularly useful for running database migrations or any other pre-work you
-   might need to perform.
+1. **Running** - The application runs each plugins `Run` step (if it has one). Should the application encounter any
+   errors, all plugins are shutdown. Particularly useful for running database migrations or any other pre-work you might
+   need to perform.
 
 1. **Started** - The application runs each plugins `Start` step (if it has one). Should the application encounter any
    errors when starting, all plugins are shutdown. Once all plugins have been started, the main thread blocks and waits
    for shut down.
 
 1. **Shutdown** - Triggered one of three ways. The first two deal with the prior two states. Should an application
-   encounter any errors when migrating or starting up, they trigger a shutdown. The last way an application can be
+   encounter any errors when running or starting up, they trigger a shutdown. The last way an application can be
    triggers is by sending either a `SIGTERM` or `SIGINT` signal. Once shutdown, the application runs each
    plugins `Shutdown` step.
 
@@ -83,7 +88,7 @@ exist in one of the following states:
 
 The diagram below shows how transitions occur between these states.
 
-![State Machine](https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggTFJcbiAgIFxuICAgKiAtLSBJbml0aWFsaXplIC0tPiAqXG4gICAqIC0tIFN0YXJ0IC0tPiBzdGFydGVkXG4gICAqIC0tIE1pZ3JhdGUgLS0-IG1pZ3JhdGluZ1xuICAgKiAtLSBlcnIgLS0-IHNodXRkb3duXG5cbiAgIG9zLlNJR1RFUk0gLS0-IHNodXRkb3duXG4gICBzdGFydGVkIC0tIGVyciAtLT4gc2h1dGRvd25cbiAgIG1pZ3JhdGluZyAtLSBlcnI_IC0tPiBzaHV0ZG93blxuXG4gICBzaHV0ZG93biAtLT4gdGVybWluYXRlZFxuIiwibWVybWFpZCI6e30sInVwZGF0ZUVkaXRvciI6ZmFsc2V9)
+[![State Machine](https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggTFJcbiAgIFxuICAgKiAtLSBJbml0aWFsaXplIC0tPiAqXG4gICAqIC0tIFN0YXJ0IC0tPiBzdGFydGVkXG4gICAqIC0tIFJ1biAtLT4gcnVubmluZ1xuICAgKiAtLSBlcnIgLS0-IHNodXRkb3duXG5cbiAgIG9zLlNJR1RFUk0gLS0-IHNodXRkb3duXG4gICBzdGFydGVkIC0tIGVyciAtLT4gc2h1dGRvd25cbiAgIHJ1bm5pbmcgLS0gZXJyPyAtLT4gc2h1dGRvd25cblxuICAgc2h1dGRvd24gLS0-IHRlcm1pbmF0ZWRcbiIsIm1lcm1haWQiOnt9LCJ1cGRhdGVFZGl0b3IiOmZhbHNlLCJhdXRvU3luYyI6dHJ1ZSwidXBkYXRlRGlhZ3JhbSI6ZmFsc2V9)](https://mermaid-js.github.io/mermaid-live-editor/edit##eyJjb2RlIjoiZ3JhcGggTFJcbiAgIFxuICAgKiAtLSBJbml0aWFsaXplIC0tPiAqXG4gICAqIC0tIFN0YXJ0IC0tPiBzdGFydGVkXG4gICAqIC0tIFJ1biAtLT4gcnVubmluZ1xuICAgKiAtLSBlcnIgLS0-IHNodXRkb3duXG5cbiAgIG9zLlNJR1RFUk0gLS0-IHNodXRkb3duXG4gICBzdGFydGVkIC0tIGVyciAtLT4gc2h1dGRvd25cbiAgIG1pZ3JhdGluZyAtLSBlcnI_IC0tPiBzaHV0ZG93blxuXG4gICBzaHV0ZG93biAtLT4gdGVybWluYXRlZFxuIiwibWVybWFpZCI6Int9IiwidXBkYXRlRWRpdG9yIjpmYWxzZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ)
 
 ### Using `lifecycle.PluginFuncs`
 
@@ -127,12 +132,12 @@ func Plugin() lifecycle.Plugin {
 
 			return nil
 		},
-		MigrateFunc: func(app *lifecycle.Application) error {
-			logger.Printf("starting migrations")
+		RunFunc: func(app *lifecycle.Application) error {
+			logger.Printf("running application as job")
 			return nil
 		},
 		StartFunc: func(app *lifecycle.Application) error {
-			logger.Printf("starting application")
+			logger.Printf("starting application as daemon")
 			return nil
 		},
 		ShutdownFunc: func(app *lifecycle.Application) error {
