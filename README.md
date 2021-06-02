@@ -18,7 +18,7 @@ in the event of an error.
 
 Here's an example of how the lifecycle library is used at effx. It's important to note that we haven't released any of
 our plugins as they are very company specific. You will need to write your own plugins. Should enough interest develop,
-we would be happy to work with the community.
+we would be happy to work with the community to develop some common ones.
 
 ```go
 package main
