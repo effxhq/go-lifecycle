@@ -20,11 +20,11 @@ type PluginFuncs struct {
 	// InitializeFunc is an optional function that can perform initialization logic for a plugin.
 	InitializeFunc func(app *Application) error
 	// RunFunc is an optional function that can perform execution logic for a plugin.
-	RunFunc        func(app *Application) error
+	RunFunc func(app *Application) error
 	// StartFunc is an optional function that can start process within a plugin.
-	StartFunc      func(app *Application) error
+	StartFunc func(app *Application) error
 	// ShutdownFunc is an optional function that can be used to gracefully disconnect client connections.
-	ShutdownFunc   func(app *Application) error
+	ShutdownFunc func(app *Application) error
 }
 
 func (p PluginFuncs) Initialize(app *Application) error {

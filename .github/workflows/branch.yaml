@@ -30,7 +30,7 @@ jobs:
           only-new-issues: true
           skip-go-installation: true
 
-      - name:  Test
+      - name: Test
         run: |
           go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
 

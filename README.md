@@ -7,8 +7,8 @@
 
 A state-based application lifecycle library for go. `go-lifecycle` helps manage the complexity around the
 initialization, startup, and shutdown of applications. It abstracts away the need to manage any lifecycle hooks and
-provides app devs with a plugin based interface. It also helps ensure that plugins are properly started and shutdown
-in the event of an error.
+provides app devs with a plugin based interface. It also helps ensure that plugins are properly started and shutdown in
+the event of an error.
 
 **Influences**
 
