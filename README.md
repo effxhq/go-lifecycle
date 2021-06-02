@@ -76,8 +76,7 @@ exist in one of the following states:
    Should the application encounter any errors, all registered plugins are shutdown.
 
 1. **Running** - The application runs each plugins `Run` step (if it has one). Should the application encounter any
-   errors, all plugins are shutdown. Particularly useful for running database migrations or any other pre-work you might
-   need to perform.
+   errors, all plugins are shutdown. Particularly useful for running database migrations, one off jobs, or crons.
 
 1. **Started** - The application runs each plugins `Start` step (if it has one). Should the application encounter any
    errors when starting, all plugins are shutdown. Once all plugins have been started, the main thread blocks and waits
