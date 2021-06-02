@@ -28,7 +28,8 @@ type Hook func(phase string, err error)
 // started, and shutdown properly. Should an error occur during initialization or startup, any previous plugin needs to
 // be shutdown to ensure it's cleaned up properly. To do this, the Application manages a simple state-machine.
 type Application struct {
-	on sync.Once
+	on   sync.Once
+	term func(err error)
 
 	// components for managing state machine
 	state  int32
@@ -44,6 +45,12 @@ type Application struct {
 }
 
 func (app *Application) init() {
+	app.term = func(err error) {
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	app.context, app.cancel = context.WithCancel(context.Background())
 	app.hook = func(phase string, err error) {}
 
@@ -154,7 +161,6 @@ func (app *Application) shutdown(err error) {
 
 	atomic.StoreInt32(&app.state, StateTerminated)
 	app.hook("terminated", err)
-	if err != nil {
-		log.Fatal(err)
-	}
+
+	app.term(err)
 }
