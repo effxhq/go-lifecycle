@@ -1,0 +1,41 @@
+name: branch
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  branch:
+    name: Branch
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.16.4' # The Go version to download (if necessary) and use.
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.39
+          only-new-issues: true
+          skip-go-installation: true
+
+      - name:  Test
+        run: |
+          go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        if: github.ref == 'refs/heads/main'
+        with:
+          file: ./coverage.txt

@@ -1,5 +1,10 @@
 # go-lifecycle
 
+[![GitHub Workflow Status](https://github.com/effxhq/go-lifecycle/workflows/branch/badge.svg)](#tbd)
+[![GoDev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/effxhq/go-lifecycle?tab=doc)
+[![CodeCov](https://codecov.io/gh/effxhq/go-lifecycle/branch/main/graph/badge.svg)](https://codecov.io/gh/effxhq/go-lifecycle)
+[![Go Report Card](https://goreportcard.com/badge/effxhq/go-lifecycle)](https://goreportcard.com/report/effxhq/go-lifecycle)
+
 A state-based application lifecycle library for go. `go-lifecycle` helps manage the complexity around the
 initialization, startup, and shutdown of applications. It abstracts away the need to manage any lifecycle hooks and
 provides app devs with a plugin based interface. It also helps ensure that plugins are properly started and shutdown

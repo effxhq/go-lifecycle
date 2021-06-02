@@ -1,0 +1,22 @@
+name: tag
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  goproxy:
+    name: Sync Goproxy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.16.4'
+
+      - name: Resolve
+        env:
+          GOPROXY: https://proxy.golang.org
+          GO111MODULE: on
+        run: go get github.com/effxhq/go-lifecycle
