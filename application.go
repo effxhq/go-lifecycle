@@ -10,14 +10,21 @@ import (
 	"syscall"
 )
 
+// State defines a series of states that the given system may be in.
 type State = int32
 
 const (
+	// StateInvalid marks when a system falls into an invalid state (unused).
 	StateInvalid State = iota
+	// StateInitial marks when a system is in the initial state and can accept plugins for initialization.
 	StateInitial
+	// StateRunning indicates the Run method has been invoked and the application is currently executing.
 	StateRunning
+	// StateStarted indicates the Start method has been invoked and the application is continuously executing.
 	StateStarted
+	// StateShutdown indicates the application is going into a terminated state, either due to an error or signal.
 	StateShutdown
+	// StateTerminated indicates the application is no longer running and typically set prior to exit.
 	StateTerminated
 )
 
@@ -80,16 +87,22 @@ func (app *Application) init() {
 
 // use a context to share plugins
 
+// WithHook configures a listener that's used to log semi-fatal errors encountered during state transitions. This is
+// typically called from your logger plugin during its initialization phase.
 func (app *Application) WithHook(hook Hook) {
 	app.on.Do(app.init)
 	app.hook = hook
 }
 
+// WithValue sets the key on the underlying application context to the provided value. This is used by plugins to pass
+// objects back through to developers.
 func (app *Application) WithValue(key, value interface{}) {
 	app.on.Do(app.init)
 	app.context = context.WithValue(app.context, key, value)
 }
 
+// Context returns the underlying context used by the application so that it make be shared with other systems. This
+// intentionally protects users from accidentally overwriting it.
 func (app *Application) Context() context.Context {
 	app.on.Do(app.init)
 	return app.context
@@ -97,8 +110,8 @@ func (app *Application) Context() context.Context {
 
 var _ Contextual = &Application{}
 
-// core
-
+// Initialize appends the provided list of plugins to the application and initializes each one. This method must be
+// called before calling Run or Start.
 func (app *Application) Initialize(plugins ...Plugin) {
 	app.on.Do(app.init)
 
@@ -117,6 +130,9 @@ func (app *Application) Initialize(plugins ...Plugin) {
 	}
 }
 
+// Run executes each plugins Run method. There is often only one of these, but some plugins (like a logger) might
+// implement Run to log state transitions. Once this method is called, you will be unable to Initialize any more
+// plugins. You will also be unable to call the Start method.
 func (app *Application) Run() {
 	app.on.Do(app.init)
 
@@ -136,6 +152,9 @@ func (app *Application) Run() {
 	app.shutdown(nil)
 }
 
+// Start executes each plugins Start method. This is often used to start long running servers, begin stat emissions,
+// or initialize control loops. Once this method is called, you will be unable to Initialize any more plugins. You will
+// also be unable to call the Start method.
 func (app *Application) Start() {
 	app.on.Do(app.init)
 
