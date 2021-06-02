@@ -15,7 +15,7 @@ type State = int32
 const (
 	StateInvalid State = iota
 	StateInitial
-	StateMigrating
+	StateRunning
 	StateStarted
 	StateShutdown
 	StateTerminated
@@ -110,17 +110,17 @@ func (app *Application) Initialize(plugins ...Plugin) {
 	}
 }
 
-func (app *Application) Migrate() {
+func (app *Application) Run() {
 	app.on.Do(app.init)
 
-	if !atomic.CompareAndSwapInt32(&app.state, StateInitial, StateMigrating) {
-		app.shutdown(ErrMigrateOrStart)
+	if !atomic.CompareAndSwapInt32(&app.state, StateInitial, StateRunning) {
+		app.shutdown(ErrRunOrStart)
 	}
 
 	for _, plugin := range app.plugins {
-		err := plugin.Migrate(app)
+		err := plugin.Run(app)
 		if err != nil {
-			app.hook("migration", err)
+			app.hook("running", err)
 			app.shutdown(err)
 			return
 		}
@@ -133,7 +133,7 @@ func (app *Application) Start() {
 	app.on.Do(app.init)
 
 	if !atomic.CompareAndSwapInt32(&app.state, StateInitial, StateStarted) {
-		app.shutdown(ErrMigrateOrStart)
+		app.shutdown(ErrRunOrStart)
 	}
 
 	for _, plugin := range app.plugins {
